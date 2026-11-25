@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#1a1612">
+  <title>Chụp mặt nhiều góc</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <p class="kicker">Mặt nguồn</p>
+      <h1>Chụp năm góc</h1>
+      <p class="lede" id="lede">Xoay mặt theo vạch. Ảnh gửi về Telegram để lúc ghép chọn đúng góc nghiêng.</p>
+    </header>
+
+    <section id="screen-setup">
+      <form id="setup-form">
+        <label>
+          Tên người
+          <input id="name" name="name" maxlength="60" autocomplete="off" placeholder="Ví dụ: cô dâu" required>
+        </label>
+        <label>
+          Mã gửi
+          <input id="key" name="key" type="password" maxlength="80" autocomplete="off" placeholder="Mã đã đặt trên Cloudflare" required>
+        </label>
+        <p class="note">Mã này chỉ để trang được phép gửi. Token bot nằm trên Cloudflare, không nằm trong trang.</p>
+        <button type="submit" id="start">Bật camera</button>
+        <p class="error" id="setup-error" hidden></p>
+      </form>
+    </section>
+
+    <section id="screen-cam" hidden>
+      <div class="stage" id="stage">
+        <video id="video" playsinline autoplay muted></video>
+        <div class="oval" id="oval"></div>
+        <div class="flash" id="flash"></div>
+        <p class="live-yaw" id="live-yaw">0°</p>
+      </div>
+      <p class="target" id="target-name">Chính diện</p>
+      <p class="hint" id="hint" aria-live="polite">Đưa mặt vào ô</p>
+      <div class="gauge" id="gauge" aria-hidden="true">
+        <div class="gauge-track"><div class="gauge-mark" id="gauge-mark"></div></div>
+        <div class="gauge-ticks" id="gauge-ticks"></div>
+      </div>
+      <ol class="slots" id="slots"></ol>
+      <div class="row">
+        <button type="button" class="ghost" id="close-cam">Đóng camera</button>
+        <button type="button" id="shutter" disabled>Chụp góc này</button>
+      </div>
+    </section>
+
+    <section id="screen-review" hidden>
+      <p class="note">Ảnh không lật gương, đúng chiều để ghép. Thanh dưới ảnh ghi góc đo trên file: dương khi mũi hướng về mép phải.</p>
+      <div class="grid" id="grid"></div>
+      <button type="button" id="send" disabled>Gửi Telegram</button>
+      <button type="button" class="ghost" id="reset">Chụp lại từ đầu</button>
+      <p class="status" id="status" hidden></p>
+    </section>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
