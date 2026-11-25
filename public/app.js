@@ -101,7 +101,7 @@ async function startCamera() {
 
   setSetupError("");
   startButton.disabled = true;
-  startButton.textContent = "Đang mở camera…";
+  setButtonLabel(startButton, "Đang mở camera…");
   const mediaPromise = navigator.mediaDevices.getUserMedia({
     audio: false,
     video: { facingMode: { ideal: "user" }, width: { ideal: 1280 }, height: { ideal: 960 } },
@@ -126,7 +126,7 @@ async function startCamera() {
     setSetupError(cameraMessage(error));
   } finally {
     startButton.disabled = false;
-    startButton.textContent = "Bật camera";
+    setButtonLabel(startButton, "Bật camera");
   }
 }
 
@@ -314,13 +314,21 @@ function renderSlots() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = shot ? "done" : target.id === activeId ? "on" : "";
+    if (!shot && target.id === activeId) button.setAttribute("aria-current", "step");
+    button.setAttribute("aria-label", shot ? `${target.label}, đã chụp` : target.label);
     if (shot) {
       const img = document.createElement("img");
       img.src = shot.url;
       img.alt = "";
       button.append(img);
     }
-    button.append(document.createTextNode(target.label));
+    const label = document.createElement("span");
+    label.className = "slot-label";
+    label.textContent = target.label;
+    const deg = document.createElement("span");
+    deg.className = "slot-deg";
+    deg.textContent = target.userYaw === 0 ? "0°" : `${target.userYaw}°`;
+    button.append(label, deg);
     button.addEventListener("click", () => retake(target.id));
     item.append(button);
     slots.append(item);
@@ -364,9 +372,6 @@ function renderReview() {
     const shot = shots.get(target.id);
     const card = document.createElement("article");
     card.className = "card";
-    const img = document.createElement("img");
-    img.alt = target.label;
-    if (shot) img.src = shot.url;
     const caption = document.createElement("p");
     caption.textContent = shot ? `${target.label} · yaw ${formatYaw(shot.rawYaw)}°` : `${target.label} · chưa chụp`;
     const button = document.createElement("button");
@@ -374,17 +379,28 @@ function renderReview() {
     button.className = "ghost";
     button.textContent = "Chụp lại";
     button.addEventListener("click", () => retake(target.id));
-    card.append(img, caption, button);
+    if (shot) {
+      const img = document.createElement("img");
+      img.alt = target.label;
+      img.src = shot.url;
+      card.append(img);
+    } else {
+      const placeholder = document.createElement("div");
+      placeholder.className = "placeholder";
+      placeholder.setAttribute("aria-hidden", "true");
+      card.append(placeholder);
+    }
+    card.append(caption, button);
     grid.append(card);
   }
   sendButton.disabled = shots.size !== TARGETS.length;
-  sendButton.textContent = "Gửi Telegram";
+  setButtonLabel(sendButton, "Gửi Telegram");
 }
 
 async function sendShots() {
   if (shots.size !== TARGETS.length) return;
   sendButton.disabled = true;
-  sendButton.textContent = "Đang gửi…";
+  setButtonLabel(sendButton, "Đang gửi…");
   status.hidden = true;
   status.classList.remove("error");
   const form = new FormData();
@@ -407,11 +423,17 @@ async function sendShots() {
     status.classList.add("error");
     status.textContent = error.message || "Không gửi được.";
     sendButton.disabled = false;
-    sendButton.textContent = "Gửi lại";
+    setButtonLabel(sendButton, "Gửi lại");
     return;
   }
   sendButton.disabled = false;
-  sendButton.textContent = "Gửi lại";
+  setButtonLabel(sendButton, "Gửi lại");
+}
+
+function setButtonLabel(button, text) {
+  const label = button.querySelector(".btn-label");
+  if (label) label.textContent = text;
+  else button.textContent = text;
 }
 
 function clearShots() {
